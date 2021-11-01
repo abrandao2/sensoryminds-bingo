@@ -1,0 +1,54 @@
+@font-face {
+  font-family: Abel;
+  src: url('./assets/fonts/Abel-Regular.ttf');
+}
+@font-face {
+  font-family: Ubuntu;
+  src: url('./assets/fonts/Ubuntu-Regular.ttf');
+}
+
+.bingo-row {
+  display: flex;
+}
+
+.bingo-cell {
+  font-size: calc((1.4vh + 1.4vw) / 2);
+  height: calc((10vh + 10vw) / 2);
+  width: calc((10vh + 10vw) / 2);
+  text-align: center;
+  border: 1px solid #3d5a80;
+  margin: 0;
+  padding: 1vw;
+  background-color: white;
+  color: #413C58;
+  font-family: Abel;
+}
+
+.bingo-cell:hover:enabled {
+  background-color: #30C5FF;
+  color: white;
+  transition: .1s;
+  cursor: pointer;
+}
+
+.bingo-cell-number {
+  font-size: 10px;
+  font-weight: bold;
+  position: absolute;
+}
+
+.border-cell-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.cell-active {
+  background-color: lightgreen !important;
+  text-decoration: line-through;
+}
+
+.cell-crossed {
+  text-decoration: line-through;
+}
