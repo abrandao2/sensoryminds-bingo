@@ -237,6 +237,14 @@ function App() {
 
   return (
     <>
+      <div className="actions-row">
+        <button
+          onClick={() => setBingoRows(generateBingoState())}
+          className="action-btn"
+        >
+          Refresh
+        </button>
+      </div>
       {message
       ? (
         <div className="message">

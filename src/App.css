@@ -60,3 +60,21 @@
   font-family: Abel;
   font-size: 2rem;
 }
+
+.actions-row {
+  padding: 1rem 0px;
+}
+
+.action-btn {
+  border: none;
+  border-radius: 5px;
+  color: #413C58;
+  padding: .5rem;
+  font-size: calc((1.4vh + 1.4vw) / 2);
+  background-color: rgb(48,197,255);
+  color: white;
+}
+
+.action-btn:hover {
+  cursor: pointer;
+}
