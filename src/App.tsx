@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import './App.css';
-import BingoCardCell, { BINGO_CARD_CENTER } from './types/bingoTypes';
+import BingoCardCell, { BINGO_CARD_CENTER, ShapeType } from './types/bingoTypes';
 import generateBingoState from './utils/generateBingoState';
 
 function App() {
@@ -26,18 +26,53 @@ function App() {
     }, 2000);
   };
 
-  const switchCellsStyle = (indices: Array<Array<number>>, activate: boolean, calledBy: string): void => {
+  const switchCellsStyle = (indices: Array<Array<number>>, activate: boolean, calledBy: ShapeType): void => {
     const bingoRowsCopy = bingoRows.map((x: Array<BingoCardCell>) => x);
-    console.log(indices, activate, calledBy)
+    
+    indices.forEach((indexPair: Array<number>) => {
+      const currentCell: BingoCardCell = bingoRowsCopy[indexPair[0]][indexPair[1]];
 
-    // indices.forEach((indexPair: Array<number>) => {
-    //   if (!bingoRowsCopy[indexPair[0]][indexPair[1]].partOfStructure) {
-    //     bingoRowsCopy[indexPair[0]][indexPair[1]].active = activate;
-    //     bingoRowsCopy[indexPair[0]][indexPair[1]].partOfStructure = activate;
-    //   } else {
-    //     bingoRowsCopy[indexPair[0]][indexPair[1]].active = activate;
-    //   }
-    // });
+      if (activate) {
+        currentCell.active = activate;
+        
+        switch (calledBy) {
+          case ShapeType.Row:
+            currentCell.partOfRow = true;
+            break;
+          case ShapeType.Column:
+            currentCell.partOfColumn = true;
+            break;
+          case ShapeType.MainDiagonal:
+            currentCell.partOfMainDiag = true;
+            break;
+          case ShapeType.SecondaryDiagonal:
+            currentCell.partOfSecDiag = true;
+            break;
+        }
+      } else {
+        switch (calledBy) {
+          case ShapeType.Row:
+            if (!currentCell.partOfColumn && !currentCell.partOfMainDiag && !currentCell.partOfSecDiag) {
+              currentCell.active = false;
+            }
+            break;
+          case ShapeType.Column:
+            if (!currentCell.partOfRow && !currentCell.partOfMainDiag && !currentCell.partOfSecDiag) {
+              currentCell.active = false;
+            }
+            break;
+          case ShapeType.MainDiagonal:
+            if (!currentCell.partOfRow && !currentCell.partOfColumn && !currentCell.partOfSecDiag) {
+              currentCell.active = false;
+            }
+            break;
+          case ShapeType.SecondaryDiagonal:
+            if (!currentCell.partOfRow && !currentCell.partOfColumn && !currentCell.partOfMainDiag) {
+              currentCell.active = false;
+            }
+        }
+      }
+    });
 
     setBingoRows(bingoRowsCopy);
   };
@@ -50,11 +85,12 @@ function App() {
     bingoRows[rowIndex].forEach((cell: BingoCardCell, colIndex: number) => {
       if (cell.crossed) {
         cellsInRowCrossedCount++;
-        indices.push([rowIndex, colIndex]);
       }
+
+      indices.push([rowIndex, colIndex]);
     });
 
-    switchCellsStyle(indices, cellsInRowCrossedCount === bingoRows.length, 'checkRow');
+    switchCellsStyle(indices, cellsInRowCrossedCount === bingoRows.length, ShapeType.Row);
 
     if (cellsInRowCrossedCount === bingoRows.length) {
       setScoreMessage('You\'ve scored a row!');
@@ -70,15 +106,16 @@ function App() {
     bingoRows.forEach((row: Array<BingoCardCell>, rowIndex: number) => {
       if (row[colIndex].crossed) {
         cellsInColCrossedCount++;
-        indices.push([rowIndex, colIndex]);
       }
+
+      indices.push([rowIndex, colIndex]);
     });
 
     if (cellsInColCrossedCount === bingoRows.length) {
       setMessage('You\'ve scored a column!');
     }
 
-    switchCellsStyle(indices, cellsInColCrossedCount === bingoRows.length, 'checkCol');
+    switchCellsStyle(indices, cellsInColCrossedCount === bingoRows.length, ShapeType.Column);
 
     return cellsInColCrossedCount === bingoRows.length;
   };
@@ -90,7 +127,6 @@ function App() {
     bingoRows.forEach((row: Array<BingoCardCell>, index: number) => {
       if (row[index].crossed) {
         mainDiagCellsCrossedCount++;
-        
       }
       
       indices.push([index, index]);
@@ -105,7 +141,7 @@ function App() {
       }
     }
 
-    switchCellsStyle(indices, mainDiagCellsCrossedCount === bingoRows.length, 'checkMainDiag');
+    switchCellsStyle(indices, mainDiagCellsCrossedCount === bingoRows.length, ShapeType.MainDiagonal);
 
     return mainDiagCellsCrossedCount === bingoRows.length;
   };
@@ -119,7 +155,7 @@ function App() {
         secDiagCellsCrossedCount++;
       }
 
-      indices.push([index, index]);
+      indices.push([index, (bingoRows.length - 1) - index]);
     });
 
     if (!secondaryDiagonalCrossed) {
@@ -131,7 +167,9 @@ function App() {
       }
     }
 
-    switchCellsStyle(indices, secDiagCellsCrossedCount === bingoRows.length, 'checkSecDiag');
+    console.log(indices)
+
+    switchCellsStyle(indices, secDiagCellsCrossedCount === bingoRows.length, ShapeType.SecondaryDiagonal);
 
     return secDiagCellsCrossedCount === bingoRows.length;
   };
@@ -168,8 +206,8 @@ function App() {
               <button
                 id={`${rowIndex}-${colIndex}`}
                 key={`${colIndex}-${cell.id}`}
+                className={`bingo-cell ${cell.crossed ? 'cell-crossed' : ''} ${cell.active ? 'cell-active' : ''}`}
                 disabled
-                className="bingo-cell"
               >
                 CONF CALL 😷 BINGO
               </button>
