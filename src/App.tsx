@@ -1,63 +1,84 @@
 import React, { useState } from 'react';
 
 import './App.css';
-import BingoCardCell, { BINGO_CARD_CENTER, ShapeType } from './types/bingoTypes';
+import BingoCardCell, { BINGO_CARD_CENTER } from './types/bingoTypes';
+import isCornerCell from './utils/array';
 import generateBingoState from './utils/generateBingoState';
 
 function App() {
   const [bingoRows, setBingoRows] = useState<Array<Array<BingoCardCell>>>(generateBingoState());
+  const [message, setMessage] = useState('');
 
-  const switchRowColStyle = (shape: ShapeType, index: number, activate: boolean): void => {
-    const bingoRowsCopy = bingoRows.map((x: Array<BingoCardCell>) => x);
+  React.useEffect(() => {
+    const timeOutId = window.setTimeout(() => {
+      setMessage('');
+    }, 2000);
 
-    if (shape === ShapeType.Row) {
-      const rowToEdit: Array<BingoCardCell> = bingoRowsCopy[index].map((cell: BingoCardCell) => {
-        return { ...cell, active: activate}
-      });
+    return () => window.clearTimeout(timeOutId);
+  }, [message]);
 
-      bingoRowsCopy[index] = rowToEdit;
-    }
-
-    if (shape === ShapeType.Column) {
-      for (let i = 0; i < bingoRowsCopy.length; i++) {
-        bingoRowsCopy[i][index].active = activate;
-      }
-    }
-
-    setBingoRows(bingoRowsCopy);
+  const setScoreMessage = (message: string): void => {
+    setMessage(message);
+    
+    setTimeout(() => {
+      setMessage('');
+    }, 2000);
   };
 
   const switchDiagsStyle = (indices: Array<Array<number>>, activate: boolean): void => {
     const bingoRowsCopy = bingoRows.map((x: Array<BingoCardCell>) => x);
-    console.log(indices)
 
     indices.forEach((indexPair: Array<number>) => {
-      bingoRows[indexPair[0]][indexPair[1]].active = activate;
+      if (!bingoRowsCopy[indexPair[0]][indexPair[1]].partOfStructure) {
+        bingoRowsCopy[indexPair[0]][indexPair[1]].active = activate;
+        bingoRowsCopy[indexPair[0]][indexPair[1]].partOfStructure = activate;
+      } else {
+        bingoRowsCopy[indexPair[0]][indexPair[1]].active = activate;
+      }
     });
 
     setBingoRows(bingoRowsCopy);
   };
   
   const checkRowForScore = (rowIndex: number): boolean => {
-    const rowAllCrossed = bingoRows[rowIndex].filter((cell: BingoCardCell) => cell.crossed).length === bingoRows[rowIndex].length;
+    let cellsInRowCrossedCount = 0;
+    const indices: number[][] = [];
 
-    switchRowColStyle(ShapeType.Row, rowIndex, rowAllCrossed);
 
-    return rowAllCrossed;
-  };
-
-  const checkColumnForScore = (colIndex: number): boolean => {
-    let cellsInRowCrossed = 0;
-
-    bingoRows.forEach((row: Array<BingoCardCell>) => {
-      if (row[colIndex].crossed) {
-        cellsInRowCrossed++;
+    bingoRows[rowIndex].forEach((cell: BingoCardCell, colIndex: number) => {
+      if (cell.crossed) {
+        cellsInRowCrossedCount++;
+        indices.push([rowIndex, colIndex]);
       }
     });
 
-    switchRowColStyle(ShapeType.Column, colIndex, cellsInRowCrossed === bingoRows.length);
+    switchDiagsStyle(indices, cellsInRowCrossedCount === bingoRows.length);
 
-    return cellsInRowCrossed === bingoRows.length;
+    if (cellsInRowCrossedCount === bingoRows.length) {
+      setScoreMessage('You\'ve scored a row!');
+    }
+
+    return cellsInRowCrossedCount === bingoRows.length;
+  };
+
+  const checkColumnForScore = (colIndex: number): boolean => {
+    let cellsInColCrossedCount = 0;
+    const indices: number[][] = [];
+
+    bingoRows.forEach((row: Array<BingoCardCell>, rowIndex: number) => {
+      if (row[colIndex].crossed) {
+        cellsInColCrossedCount++;
+        indices.push([rowIndex, colIndex]);
+      }
+    });
+
+    if (cellsInColCrossedCount === bingoRows.length) {
+      setMessage('You\'ve scored a column!');
+    }
+
+    switchDiagsStyle(indices, cellsInColCrossedCount === bingoRows.length);
+
+    return cellsInColCrossedCount === bingoRows.length;
   };
 
   const checkMainDiagonalsForScore = (rowIndex: number, colIndex: number): boolean => {
@@ -103,15 +124,21 @@ function App() {
         colIndexCopy++;
       }
     }
+    
+    if (!isCornerCell(`${rowIndex},${colIndex}`, bingoRows.length - 1)) {
+      switchDiagsStyle(mainDiagIndices, mainDiagCrossedCount === iterationDepth);
+      setMessage('You\'ve scored a main diagonal!');
 
-    switchDiagsStyle(mainDiagIndices, mainDiagCrossedCount === iterationDepth);
+      return mainDiagCrossedCount === iterationDepth;
+    }
 
-    return mainDiagCrossedCount === iterationDepth;
+    return false;
   };
 
   const checkSecondaryDiagonalForScore = (rowIndex: number, colIndex: number): boolean => {
     let secondaryDiagCrossedCount = 0;
     let iterationDepth = 0;
+    const secondaryDiagIndices = [];
     let rowIndexCopy = rowIndex;
     let colIndexCopy = colIndex;
 
@@ -119,6 +146,7 @@ function App() {
     if (!(rowIndexCopy === 0 && colIndexCopy === 0)) {
       while (true) {
         iterationDepth++;
+        secondaryDiagIndices.push([rowIndex, colIndex]);
   
         if (bingoRows[rowIndexCopy][colIndexCopy].crossed) {
           secondaryDiagCrossedCount++;
@@ -139,6 +167,7 @@ function App() {
 
       while (true) {
         iterationDepth++;
+        secondaryDiagIndices.push([rowIndex, colIndex]);
 
         if (bingoRows[rowIndexCopy][colIndexCopy].crossed) {
           secondaryDiagCrossedCount++;
@@ -150,7 +179,10 @@ function App() {
       }
     }
 
-    if (iterationDepth > 1) {
+    if (!isCornerCell(`${rowIndex},${colIndex}`, bingoRows.length - 1)) {
+      switchDiagsStyle(secondaryDiagIndices, secondaryDiagCrossedCount === iterationDepth);
+      setMessage('You\'ve scored a secondary diagonal!');
+
       return secondaryDiagCrossedCount === iterationDepth;
     }
 
@@ -164,7 +196,7 @@ function App() {
     checkSecondaryDiagonalForScore(rowIndex, colIndex);
   };
 
-  const handleSwitchCrossState = (rowIndex: number, colIndex: number): void => {
+  const handleSwitchCrossedState = (rowIndex: number, colIndex: number): void => {
     const bingoRowsCopy = bingoRows.map((x: Array<BingoCardCell>) => x);
 
     bingoRowsCopy[rowIndex][colIndex].crossed = !bingoRowsCopy[rowIndex][colIndex].crossed;
@@ -202,7 +234,7 @@ function App() {
               id={`${rowIndex}-${colIndex}`}
               key={`${colIndex}-${cell.id}`}
               className={`bingo-cell ${cell.crossed ? 'cell-crossed' : ''} ${cell.active ? 'cell-active' : ''}`}
-              onClick={() => handleSwitchCrossState(rowIndex, colIndex)}
+              onClick={() => handleSwitchCrossedState(rowIndex, colIndex)}
             >
               <div className="bingo-cell-number">
                   {cellCount}
@@ -220,6 +252,12 @@ function App() {
 
   return (
     <>
+      {message
+      ? (
+        <div className="message">
+          {message}
+        </div>
+      ) : null}
       <div>
         {rows}
       </div>
