@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 
 import './App.css';
 import BingoCardCell, { BINGO_CARD_CENTER } from './types/bingoTypes';
-import isCornerCell from './utils/array';
 import generateBingoState from './utils/generateBingoState';
 
 function App() {
   const [bingoRows, setBingoRows] = useState<Array<Array<BingoCardCell>>>(generateBingoState());
   const [message, setMessage] = useState('');
+  const [mainDiagonalCrossed, setMainDiagonalCrossed] = useState(false);
+  const [secondaryDiagonalCrossed, setSecondaryDiagonalCrossed] = useState(false);
 
   React.useEffect(() => {
     const timeOutId = window.setTimeout(() => {
@@ -25,17 +26,18 @@ function App() {
     }, 2000);
   };
 
-  const switchDiagsStyle = (indices: Array<Array<number>>, activate: boolean): void => {
+  const switchCellsStyle = (indices: Array<Array<number>>, activate: boolean, calledBy: string): void => {
     const bingoRowsCopy = bingoRows.map((x: Array<BingoCardCell>) => x);
+    console.log(indices, activate, calledBy)
 
-    indices.forEach((indexPair: Array<number>) => {
-      if (!bingoRowsCopy[indexPair[0]][indexPair[1]].partOfStructure) {
-        bingoRowsCopy[indexPair[0]][indexPair[1]].active = activate;
-        bingoRowsCopy[indexPair[0]][indexPair[1]].partOfStructure = activate;
-      } else {
-        bingoRowsCopy[indexPair[0]][indexPair[1]].active = activate;
-      }
-    });
+    // indices.forEach((indexPair: Array<number>) => {
+    //   if (!bingoRowsCopy[indexPair[0]][indexPair[1]].partOfStructure) {
+    //     bingoRowsCopy[indexPair[0]][indexPair[1]].active = activate;
+    //     bingoRowsCopy[indexPair[0]][indexPair[1]].partOfStructure = activate;
+    //   } else {
+    //     bingoRowsCopy[indexPair[0]][indexPair[1]].active = activate;
+    //   }
+    // });
 
     setBingoRows(bingoRowsCopy);
   };
@@ -52,7 +54,7 @@ function App() {
       }
     });
 
-    switchDiagsStyle(indices, cellsInRowCrossedCount === bingoRows.length);
+    switchCellsStyle(indices, cellsInRowCrossedCount === bingoRows.length, 'checkRow');
 
     if (cellsInRowCrossedCount === bingoRows.length) {
       setScoreMessage('You\'ve scored a row!');
@@ -76,124 +78,69 @@ function App() {
       setMessage('You\'ve scored a column!');
     }
 
-    switchDiagsStyle(indices, cellsInColCrossedCount === bingoRows.length);
+    switchCellsStyle(indices, cellsInColCrossedCount === bingoRows.length, 'checkCol');
 
     return cellsInColCrossedCount === bingoRows.length;
   };
 
-  const checkMainDiagonalsForScore = (rowIndex: number, colIndex: number): boolean => {
-    let mainDiagCrossedCount = 0;
-    const mainDiagIndices = [];
-    let iterationDepth = 0;
-    let rowIndexCopy = rowIndex;
-    let colIndexCopy = colIndex;
+  const checkMainDiagonalForScore = (): boolean => {
+    let mainDiagCellsCrossedCount = 0;
+    const indices: number[][] = [];
 
-    // Traverse main diagonal upwards
-    if (!(rowIndexCopy === 0 && colIndexCopy === 0)) {
-      while (true) {
-        iterationDepth++;
-        mainDiagIndices.push([rowIndexCopy, colIndexCopy]);
-  
-        if (bingoRows[rowIndexCopy][colIndexCopy].crossed) {
-          mainDiagCrossedCount++;
-        }
-  
-        if (rowIndexCopy === 0 || colIndexCopy === 0) break;
-        rowIndexCopy--;
-        colIndexCopy--;
+    bingoRows.forEach((row: Array<BingoCardCell>, index: number) => {
+      if (row[index].crossed) {
+        mainDiagCellsCrossedCount++;
+        
+      }
+      
+      indices.push([index, index]);
+    });
+
+    if (!mainDiagonalCrossed) {
+      if (mainDiagCellsCrossedCount === bingoRows.length) {
+        setMessage('You\'ve scored the main diagonal!');
+        setMainDiagonalCrossed(true);
+      } else {
+        setMainDiagonalCrossed(false);
       }
     }
 
-    // Traverse main diagonal downwards
-    // If cell is at the border somewhere, it means it has already been counted above.
-    // So, only check the main diagonal downwards if the cell ISN'T located at the bottom row.
-    if (rowIndex !== bingoRows.length - 1 && colIndex !== bingoRows.length - 1) {
-      rowIndexCopy = rowIndex + 1;
-      colIndexCopy = colIndex + 1;
+    switchCellsStyle(indices, mainDiagCellsCrossedCount === bingoRows.length, 'checkMainDiag');
 
-      while (true) {
-        iterationDepth++;
-        mainDiagIndices.push([rowIndexCopy, colIndexCopy]);
-
-        if (bingoRows[rowIndexCopy][colIndexCopy].crossed) {
-          mainDiagCrossedCount++;
-        }
-  
-        if (rowIndexCopy === bingoRows.length - 1 || colIndexCopy === bingoRows.length - 1) break;
-        rowIndexCopy++;
-        colIndexCopy++;
-      }
-    }
-    
-    if (!isCornerCell(`${rowIndex},${colIndex}`, bingoRows.length - 1)) {
-      switchDiagsStyle(mainDiagIndices, mainDiagCrossedCount === iterationDepth);
-      setMessage('You\'ve scored a main diagonal!');
-
-      return mainDiagCrossedCount === iterationDepth;
-    }
-
-    return false;
+    return mainDiagCellsCrossedCount === bingoRows.length;
   };
 
-  const checkSecondaryDiagonalForScore = (rowIndex: number, colIndex: number): boolean => {
-    let secondaryDiagCrossedCount = 0;
-    let iterationDepth = 0;
-    const secondaryDiagIndices = [];
-    let rowIndexCopy = rowIndex;
-    let colIndexCopy = colIndex;
+  const checkSecondaryDiagonalForScore = (): boolean => {
+    let secDiagCellsCrossedCount = 0;
+    const indices: number[][] = [];
 
-    // Traverse secondary diagonal downwards
-    if (!(rowIndexCopy === 0 && colIndexCopy === 0)) {
-      while (true) {
-        iterationDepth++;
-        secondaryDiagIndices.push([rowIndex, colIndex]);
-  
-        if (bingoRows[rowIndexCopy][colIndexCopy].crossed) {
-          secondaryDiagCrossedCount++;
-        }
-  
-        if (rowIndexCopy === bingoRows.length - 1 || colIndexCopy === 0) break;
-        rowIndexCopy++;
-        colIndexCopy--;
+    bingoRows.forEach((row: Array<BingoCardCell>, index: number) => {
+      if (row[(bingoRows.length - 1) - index].crossed) {
+        secDiagCellsCrossedCount++;
+      }
+
+      indices.push([index, index]);
+    });
+
+    if (!secondaryDiagonalCrossed) {
+      if (secDiagCellsCrossedCount === bingoRows.length) {
+        setMessage('You\'ve scored the secondary diagonal!');
+        setSecondaryDiagonalCrossed(true);
+      } else {
+        setSecondaryDiagonalCrossed(false);
       }
     }
 
-    // Traverse secondary diagional upwards
-    // If cell is at the border somewhere, it means it has already been counted above.
-    // So, only check the secondary diagonal upwards if the cell ISN'T located at the far right column.
-    if (!(colIndex === bingoRows.length - 1 && rowIndex === bingoRows.length - 1)) {
-      rowIndexCopy = rowIndex;
-      colIndexCopy = colIndex;
+    switchCellsStyle(indices, secDiagCellsCrossedCount === bingoRows.length, 'checkSecDiag');
 
-      while (true) {
-        iterationDepth++;
-        secondaryDiagIndices.push([rowIndex, colIndex]);
-
-        if (bingoRows[rowIndexCopy][colIndexCopy].crossed) {
-          secondaryDiagCrossedCount++;
-        }
-  
-        if (rowIndexCopy === 0 || colIndexCopy === bingoRows.length - 1) break;
-        rowIndexCopy--;
-        colIndexCopy++;
-      }
-    }
-
-    if (!isCornerCell(`${rowIndex},${colIndex}`, bingoRows.length - 1)) {
-      switchDiagsStyle(secondaryDiagIndices, secondaryDiagCrossedCount === iterationDepth);
-      setMessage('You\'ve scored a secondary diagonal!');
-
-      return secondaryDiagCrossedCount === iterationDepth;
-    }
-
-    return false;
+    return secDiagCellsCrossedCount === bingoRows.length;
   };
 
   const checkForScores = (rowIndex: number, colIndex: number): void => {
     checkRowForScore(rowIndex);
     checkColumnForScore(colIndex);
-    checkMainDiagonalsForScore(rowIndex, colIndex);
-    checkSecondaryDiagonalForScore(rowIndex, colIndex);
+    checkMainDiagonalForScore();
+    checkSecondaryDiagonalForScore();
   };
 
   const handleSwitchCrossedState = (rowIndex: number, colIndex: number): void => {
