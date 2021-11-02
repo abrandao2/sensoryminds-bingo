@@ -52,22 +52,22 @@ function App() {
       } else {
         switch (calledBy) {
           case ShapeType.Row:
-            if (!currentCell.partOfColumn && !currentCell.partOfMainDiag && !currentCell.partOfSecDiag) {
+            if (!(currentCell.partOfColumn || currentCell.partOfMainDiag || currentCell.partOfSecDiag)) {
               currentCell.active = false;
             }
             break;
           case ShapeType.Column:
-            if (!currentCell.partOfRow && !currentCell.partOfMainDiag && !currentCell.partOfSecDiag) {
+            if (!(currentCell.partOfRow || currentCell.partOfMainDiag || currentCell.partOfSecDiag)) {
               currentCell.active = false;
             }
             break;
           case ShapeType.MainDiagonal:
-            if (!currentCell.partOfRow && !currentCell.partOfColumn && !currentCell.partOfSecDiag) {
+            if (!(currentCell.partOfRow || currentCell.partOfColumn || currentCell.partOfSecDiag)) {
               currentCell.active = false;
             }
             break;
           case ShapeType.SecondaryDiagonal:
-            if (!currentCell.partOfRow && !currentCell.partOfColumn && !currentCell.partOfMainDiag) {
+            if (!(currentCell.partOfRow || currentCell.partOfColumn || currentCell.partOfMainDiag)) {
               currentCell.active = false;
             }
         }
