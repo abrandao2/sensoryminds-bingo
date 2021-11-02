@@ -52,3 +52,11 @@
 .cell-crossed {
   text-decoration: line-through;
 }
+
+.message {
+  text-align: center;
+  margin: 1rem;
+  background-color: lightgreen;
+  font-family: Abel;
+  font-size: 2rem;
+}
