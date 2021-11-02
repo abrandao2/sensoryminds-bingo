@@ -3,7 +3,10 @@ interface BingoCardCell {
   phrase: string;
   crossed: boolean;
   active: boolean;
-  partOfStructure: boolean;
+  partOfRow: boolean;
+  partOfColumn: boolean;
+  partOfMainDiag: boolean;
+  partOfSecDiag: boolean;
 };
 
 export enum ShapeType {

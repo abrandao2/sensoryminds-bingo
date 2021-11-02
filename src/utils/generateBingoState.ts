@@ -43,7 +43,10 @@ const generateBingoState = () => {
       phrase: phrasesShuffled[i],
       crossed: phrasesShuffled[i] === BINGO_CARD_CENTER,
       active: false,
-      partOfStructure: false
+      partOfRow: false,
+      partOfColumn: false,
+      partOfMainDiag: false,
+      partOfSecDiag: false
     });
 
     if (bingoRow.length === 5) {
