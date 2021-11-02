@@ -167,8 +167,6 @@ function App() {
       }
     }
 
-    console.log(indices)
-
     switchCellsStyle(indices, secDiagCellsCrossedCount === bingoRows.length, ShapeType.SecondaryDiagonal);
 
     return secDiagCellsCrossedCount === bingoRows.length;
