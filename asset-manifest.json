@@ -1,21 +1,21 @@
 {
   "files": {
-    "main.css": "/dev01766/sensoryminds-bingo/static/css/main.50e8adc7.chunk.css",
-    "main.js": "/dev01766/sensoryminds-bingo/static/js/main.4d20a5cd.chunk.js",
-    "main.js.map": "/dev01766/sensoryminds-bingo/static/js/main.4d20a5cd.chunk.js.map",
-    "runtime-main.js": "/dev01766/sensoryminds-bingo/static/js/runtime-main.0884d08f.js",
-    "runtime-main.js.map": "/dev01766/sensoryminds-bingo/static/js/runtime-main.0884d08f.js.map",
-    "static/js/2.6f314d2f.chunk.js": "/dev01766/sensoryminds-bingo/static/js/2.6f314d2f.chunk.js",
-    "static/js/2.6f314d2f.chunk.js.map": "/dev01766/sensoryminds-bingo/static/js/2.6f314d2f.chunk.js.map",
-    "index.html": "/dev01766/sensoryminds-bingo/index.html",
-    "static/css/main.50e8adc7.chunk.css.map": "/dev01766/sensoryminds-bingo/static/css/main.50e8adc7.chunk.css.map",
-    "static/js/2.6f314d2f.chunk.js.LICENSE.txt": "/dev01766/sensoryminds-bingo/static/js/2.6f314d2f.chunk.js.LICENSE.txt",
-    "static/media/App.css": "/dev01766/sensoryminds-bingo/static/media/Ubuntu-Regular.fbdecfce.ttf"
+    "main.css": "/sensoryminds-bingo/static/css/main.c2db1cd8.chunk.css",
+    "main.js": "/sensoryminds-bingo/static/js/main.4d20a5cd.chunk.js",
+    "main.js.map": "/sensoryminds-bingo/static/js/main.4d20a5cd.chunk.js.map",
+    "runtime-main.js": "/sensoryminds-bingo/static/js/runtime-main.72aa4503.js",
+    "runtime-main.js.map": "/sensoryminds-bingo/static/js/runtime-main.72aa4503.js.map",
+    "static/js/2.6f314d2f.chunk.js": "/sensoryminds-bingo/static/js/2.6f314d2f.chunk.js",
+    "static/js/2.6f314d2f.chunk.js.map": "/sensoryminds-bingo/static/js/2.6f314d2f.chunk.js.map",
+    "index.html": "/sensoryminds-bingo/index.html",
+    "static/css/main.c2db1cd8.chunk.css.map": "/sensoryminds-bingo/static/css/main.c2db1cd8.chunk.css.map",
+    "static/js/2.6f314d2f.chunk.js.LICENSE.txt": "/sensoryminds-bingo/static/js/2.6f314d2f.chunk.js.LICENSE.txt",
+    "static/media/App.css": "/sensoryminds-bingo/static/media/Ubuntu-Regular.fbdecfce.ttf"
   },
   "entrypoints": [
-    "static/js/runtime-main.0884d08f.js",
+    "static/js/runtime-main.72aa4503.js",
     "static/js/2.6f314d2f.chunk.js",
-    "static/css/main.50e8adc7.chunk.css",
+    "static/css/main.c2db1cd8.chunk.css",
     "static/js/main.4d20a5cd.chunk.js"
   ]
 }
