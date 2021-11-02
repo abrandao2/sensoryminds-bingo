@@ -2,7 +2,8 @@ interface BingoCardCell {
   id: number;
   phrase: string;
   crossed: boolean;
-  active?: boolean;
+  active: boolean;
+  partOfStructure: boolean;
 };
 
 export enum ShapeType {

@@ -41,7 +41,9 @@ const generateBingoState = () => {
     bingoRow.push({
       id: i,
       phrase: phrasesShuffled[i],
-      crossed: phrasesShuffled[i] === BINGO_CARD_CENTER
+      crossed: phrasesShuffled[i] === BINGO_CARD_CENTER,
+      active: false,
+      partOfStructure: false
     });
 
     if (bingoRow.length === 5) {
